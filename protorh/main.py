@@ -5,7 +5,6 @@ from fastapi import FastAPI, HTTPException
 from sqlalchemy import create_engine, text, Column, Integer, String, DateTime, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-
 import os
 
 
@@ -62,13 +61,43 @@ def create_employee(employee: EmployeeCreate):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/employees/")
-def create_employee():
+def get_employees():
     db = SessionLocal()
     try:
         query = text("SELECT * FROM employee;")
         result = db.execute(query)
         db.close()
         final_result = result.all()
+        return final_result
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    
+@app.get("/employees/{id}")
+def get_employee(id: int):
+    db = SessionLocal()
+    try:
+        query = text(f"SELECT * FROM employee WHERE ID = {id};")
+        result = db.execute(query)
+        db.close()
+        final_result = result.all()
+        return final_result
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.delete("/employees/{id}")
+def delete_employee(id: int):
+    db = SessionLocal()
+    try:
+        query = text(f"DELETE FROM employee WHERE ID = {id};")
+        result = db.execute(query)
+        print(result)
+        db.close()
+        final_result = result.all()
+        print(final_result)
         return final_result
     except Exception as e:
         db.rollback()
